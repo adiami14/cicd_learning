@@ -29,6 +29,38 @@ def add_user(stdscr):
     stdscr.refresh()
     stdscr.getch()
 
+def update_user(stdscr):
+    stdscr.clear()
+    stdscr.addstr(1, 2, "Update User Email", curses.A_BOLD)
+
+    stdscr.addstr(3, 2, "Name of User to Update: ")
+    stdscr.refresh()
+    curses.echo()
+    name = stdscr.getstr(3, 28, 30).decode('utf-8')
+
+    stdscr.addstr(4, 2, "New Email: ")
+    stdscr.refresh()
+    email = stdscr.getstr(4, 13, 40).decode('utf-8')
+    curses.noecho()
+
+    if not name or not email:
+        stdscr.addstr(6, 2, "Error: Fields cannot be empty!", curses.color_pair(1))
+        stdscr.refresh()
+        stdscr.getch()
+        return
+
+    response = requests.post(f"{SERVER_URL}/update_user", json={"name": name, "email": email})
+
+    if response.status_code == 201:
+        stdscr.addstr(6, 2, response.json().get('message', "User updated successfully"), curses.color_pair(2))
+    elif response.status_code == 404:
+        stdscr.addstr(6, 2, "Error: User does not exist!", curses.color_pair(1))
+    else:
+        stdscr.addstr(6, 2, "Failed to update user.", curses.color_pair(1))
+
+    stdscr.refresh()
+    stdscr.getch()
+
 def get_users(stdscr):
     stdscr.clear()
     stdscr.addstr(1, 2, "User List", curses.A_BOLD)
@@ -59,9 +91,10 @@ def main(stdscr):
 
         stdscr.addstr(3, 2, "1. Add User")
         stdscr.addstr(4, 2, "2. Get User List")
-        stdscr.addstr(5, 2, "3. Exit")
+        stdscr.addstr(5, 2, "3. Update User Email")
+        stdscr.addstr(6, 2, "4. Exit")
 
-        stdscr.addstr(7, 2, "Choose an option: ")
+        stdscr.addstr(8, 2, "Choose an option: ")
         stdscr.refresh()
         
         key = stdscr.getch()
@@ -71,6 +104,8 @@ def main(stdscr):
         elif key == ord('2'):
             get_users(stdscr)
         elif key == ord('3'):
+            update_user(stdscr)
+        elif key == ord('4'):
             break
 
 if __name__ == "__main__":
