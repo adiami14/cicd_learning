@@ -10,7 +10,7 @@ data = {'name' : "asdas", "email" : "adia@gmail.com"}
 users.append(data)
 
 
-name_to_remove = data['name']  # The last added data['name'], i.e., "asdas"
+name_to_remove = data['name']  # The last added data['name'], i.e., "asdas"asdasdasdasdasd
 
 # Check if the name exists in the list of dictionaries
 if any(user["name"] == name_to_remove for user in users):
