@@ -21,8 +21,15 @@ def update_user():
     if not data or 'name' not in data or 'email' not in data:
         return jsonify({'error': 'Invalid data'}), 400
     
+    global users
     name_to_remove = data['name']  # The last added data['name'], i.e., "asdas"
-    if not any(user["name"] == name_to_remove for user in users):
+    found = False
+    for user in users:
+        if user["name"] == name_to_remove:
+            found = True
+            break
+    
+    if not found:
         return jsonify({'error': 'User Do not exist'}), 404
         
 
