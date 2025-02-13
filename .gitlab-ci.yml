@@ -1,0 +1,50 @@
+image: python:3.10  # Use a Python image
+
+stages:
+  - build
+  - test
+  - deploy
+
+# ========================
+# 🔹 BUILD STAGE
+# ========================
+build-job:
+  stage: build
+  before_script:
+    - echo "Installing dependencies..."
+    - pip install -r my_server/requirements.txt
+  script:
+    - echo "Building the application..."
+    - docker build -t my_server_image ./my_server  # Build Docker image
+  artifacts:
+    paths:
+      - my_server/  # Preserve project files for later stages
+
+# ========================
+# 🔹 TEST STAGE
+# ========================
+test-job:
+  stage: test
+  before_script:
+    - pip install -r my_server/requirements.txt
+    - pip install pytest pytest-mock requests  # Install testing tools
+  script:
+    - echo "Running API tests..."
+    - pytest my_server/test_server.py --disable-warnings
+    - echo "Running Client tests..."
+    - pytest test_client.py --disable-warnings
+
+# ========================
+# 🔹 DEPLOY STAGE
+# ========================
+deploy-job:
+  stage: deploy
+  before_script:
+    - echo "Logging into DockerHub..."
+    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+  script:
+    - echo "Deploying the application..."
+    - docker tag my_server_image $DOCKER_USERNAME/my_server_image:latest
+    - docker push $DOCKER_USERNAME/my_server_image:latest
+  only:
+    - main  # Only deploy when pushing to the main branch

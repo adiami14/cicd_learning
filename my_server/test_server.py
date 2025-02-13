@@ -21,6 +21,24 @@ def test_add_user_invalid_data(client):
     assert response.status_code == 400
     assert "Invalid data" in response.json["error"]
 
+def test_update_user_invalid_data(client):
+    """Test update user with missing fields"""
+    response = client.post("/update_user", json={})
+    assert response.status_code == 400
+    assert "Invalid data" in response.json["error"]
+
+def test_update_user_success(client):
+    """Test update user"""
+    response = client.post("/update_user", json={"name": "John Doe", "email": "john@gmail.com"})
+    assert response.status_code == 201
+    assert "New user 'John Doe' updated successfully" in response.json["message"]
+
+def test_update_user_unkown_user(client):
+    """Test updating an unkwonuser"""
+    response = client.post("/update_user", json={"name": "adiami", "email": "adiami@gmail.com"})
+    assert response.status_code == 404
+    assert 'User Do not exist' in response.json["error"]
+
 def test_get_users(client):
     """Test retrieving user list"""
     # Add a user first
